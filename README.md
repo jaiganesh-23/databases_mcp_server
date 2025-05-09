@@ -23,7 +23,7 @@ For Sqlite
 "mcp": {
         "inputs": [],
         "servers": {
-            "mysql": {
+            "sqlite": {
             "command": "node",
             "args": [
                 "absolute/path/to/index.js", 
