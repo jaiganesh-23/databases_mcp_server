@@ -35,8 +35,37 @@ if (args.length === 0) {
 
 let dbType = 'sqlite';
 let connectionInfo= null;
-
-if (args.includes('--mysql')) {
+if (args.includes('--sqlserver')) {
+    dbType = 'sqlserver';
+    connectionInfo = {
+        server: '',
+        database: '',
+        user: undefined,
+        password: undefined
+    };
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--server' && i + 1 < args.length) {
+            connectionInfo.server = args[i + 1];
+        }
+        else if (args[i] === '--database' && i + 1 < args.length) {
+            connectionInfo.database = args[i + 1];
+        }
+        else if (args[i] === '--user' && i + 1 < args.length) {
+            connectionInfo.user = args[i + 1];
+        }
+        else if (args[i] === '--password' && i + 1 < args.length) {
+            connectionInfo.password = args[i + 1];
+        }
+        else if (args[i] === '--port' && i + 1 < args.length) {
+            connectionInfo.port = parseInt(args[i + 1], 10);
+        }
+    }
+    if (!connectionInfo.server || !connectionInfo.database) {
+        logger.error("Error: SQL Server requires --server and --database parameters");
+        process.exit(1);
+    }
+}
+else if (args.includes('--mysql')) {
     dbType = 'mysql';
     connectionInfo = {
       host: '',
@@ -71,6 +100,45 @@ if (args.includes('--mysql')) {
       process.exit(1);
     }
 }
+else if (args.includes('--postgresql') || args.includes('--postgres')) {
+    dbType = 'postgresql';
+    connectionInfo = {
+        host: '',
+        database: '',
+        user: undefined,
+        password: undefined,
+        port: undefined,
+        ssl: undefined,
+        connectionTimeout: undefined
+    };
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--host' && i + 1 < args.length) {
+            connectionInfo.host = args[i + 1];
+        }
+        else if (args[i] === '--database' && i + 1 < args.length) {
+            connectionInfo.database = args[i + 1];
+        }
+        else if (args[i] === '--user' && i + 1 < args.length) {
+            connectionInfo.user = args[i + 1];
+        }
+        else if (args[i] === '--password' && i + 1 < args.length) {
+            connectionInfo.password = args[i + 1];
+        }
+        else if (args[i] === '--port' && i + 1 < args.length) {
+            connectionInfo.port = parseInt(args[i + 1], 10);
+        }
+        else if (args[i] === '--ssl' && i + 1 < args.length) {
+            connectionInfo.ssl = args[i + 1] === 'true';
+        }
+        else if (args[i] === '--connection-timeout' && i + 1 < args.length) {
+            connectionInfo.connectionTimeout = parseInt(args[i + 1], 10);
+        }
+    }
+    if (!connectionInfo.host || !connectionInfo.database) {
+        logger.error("Error: PostgreSQL requires --host and --database parameters");
+        process.exit(1);
+    }
+}
 else {
 
     dbType = 'sqlite';
@@ -78,15 +146,21 @@ else {
     logger.info(`Using SQLite database at path: ${connectionInfo}`);
 }
 
-async function runServer() {
+async function initializeDatabase() {
   try {
     logger.info(`Initializing ${dbType} database...`);
     if (dbType === 'sqlite') {
       logger.info(`Database path: ${connectionInfo}`);
-    } else if (dbType === 'mysql') {
+    }
+    else if (dbType === 'sqlserver') {
+      logger.info(`Server: ${connectionInfo.server}, Database: ${connectionInfo.database}`);
+    }
+    else if (dbType === 'mysql') {
       logger.info(`Host: ${connectionInfo.host}, Database: ${connectionInfo.database}`);
     }
-    
+    else if (dbType === 'postgresql') {
+      logger.info(`Host: ${connectionInfo.host}, Database: ${connectionInfo.database}`);
+    }
     // Initialize the database
     await initDatabase(connectionInfo, dbType);
     
@@ -98,7 +172,7 @@ async function runServer() {
   }
 }
 
-runServer().catch(error => {
+initializeDatabase().catch(error => {
   logger.error("Server initialization failed:", error);
   process.exit(1);
 }); 
@@ -412,7 +486,19 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 
-logger.info('Starting MCP server...');
-const transport = new StdioServerTransport();
-await server.connect(transport);
-logger.info('Server running. Press Ctrl+C to exit.');
+async function startSever(){
+  try{
+    logger.info('Starting MCP server...');
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    logger.info('Server running. Press Ctrl+C to exit.');
+  } catch (error) {
+    logger.error('Error starting server:', error);
+    process.exit(1);
+  }
+}
+
+startSever().catch(error => {
+    logger.error("Server startup failed:", error);
+    process.exit(1);
+});

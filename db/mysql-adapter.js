@@ -12,7 +12,7 @@ export class MysqlAdapter {
             user: connectionInfo.user,
             password: connectionInfo.password,
             ssl: connectionInfo.ssl,
-            connectionTimeoutMillis: connectionInfo.connectionTimeout || 30000,
+            connectionTimeoutMillis: connectionInfo.connectionTimeout || 3000000,
         };
     }
 
