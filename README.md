@@ -33,4 +33,40 @@ For Sqlite
         }
     }
 
+For Postgresql
+"mcp": {
+        "inputs": [],
+        "servers": {
+            "mysql": {
+            "command": "node",
+            "args": [
+                "absolute/path/to/index.js", 
+                "--postgresql",
+                "--host","host",
+                "--database","database",
+                "--user","user",
+                "--password","password",
+                "ssl","true",
+                ]
+            }
+        }
+    }
+
+For Sqlserver
+"mcp": {
+        "inputs": [],
+        "servers": {
+            "mysql": {
+            "command": "node",
+            "args": [
+                "absolute/path/to/index.js", 
+                "--sqlserver",
+                "--server","server",
+                "--database","database",
+                "--user","user",
+                "--password","password",
+                ]
+            }
+        }
+    }
 ```
