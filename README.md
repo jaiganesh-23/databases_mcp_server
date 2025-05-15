@@ -46,7 +46,7 @@ For Postgresql
                 "--database","database",
                 "--user","user",
                 "--password","password",
-                "ssl","true",
+                "--ssl","true",
                 ]
             }
         }
