@@ -1,4 +1,4 @@
-Created a MCP Server that connects to databases(currently sqlite, mysql) and perform queries on them automatically with natural language.<br><br><br>
+Created a MCP Server that connects to databases(currently sqlite, mysql, postgresql and sqlserver) and perform queries on them automatically with natural language.<br><br><br>
 Usage with VS Code<br><br>
 ```
 For Mysql
